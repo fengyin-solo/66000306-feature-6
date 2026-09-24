@@ -100,8 +100,10 @@ function draw() {
       if (!n1 || !n2) continue;
 
       const s = store.deformationScale;
-      const [x1, y1] = toScreen(n1.x + n1.displacementX * s, n1.y + n1.displacementY * s);
-      const [x2, y2] = toScreen(n2.x + n2.displacementX * s, n2.y + n2.displacementY * s);
+      const d1 = store.nodeDisplacements.get(el.nodeIds[0]) ?? { x: 0, y: 0 };
+      const d2 = store.nodeDisplacements.get(el.nodeIds[1]) ?? { x: 0, y: 0 };
+      const [x1, y1] = toScreen(n1.x + d1.x * s, n1.y + d1.y * s);
+      const [x2, y2] = toScreen(n2.x + d2.x * s, n2.y + d2.y * s);
 
       ctx.beginPath();
       ctx.moveTo(x1, y1);
@@ -224,7 +226,7 @@ function draw() {
         maxVal = Math.max(...store.result.strains.map(Math.abs));
         break;
       case 'force':
-        maxVal = Math.max(...elements.map((e) => Math.abs(e.force)));
+        maxVal = Math.max(...(store.result?.forces.map(Math.abs) ?? [0]));
         break;
     }
   }
@@ -326,7 +328,7 @@ function handleClick(e: MouseEvent) {
     }
   }
 
-  store.selectElement(bestId);
+  store.requestSelect(bestId);
   draw();
 }
 

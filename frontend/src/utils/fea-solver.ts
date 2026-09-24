@@ -1,4 +1,4 @@
-import type { FEAModel, FEAResult, Node, Element, Load } from '../types';
+import type { FEAModel, FEAResult, Node, Element } from '../types';
 
 // ─── FEA Solver ─────────────────────────────────────────────────────────────
 export function solve(model: FEAModel): FEAResult {
@@ -99,23 +99,12 @@ export function solve(model: FEAModel): FEAResult {
     stresses.push(stress);
     strains.push(strain);
     forces.push(force);
-
-    el.stress = stress;
-    el.strain = strain;
-    el.force = force;
-  }
-
-  // Update node displacements
-  for (const node of nodes) {
-    const idx = nodeIndex.get(node.id)!;
-    node.displacementX = U[idx * 2];
-    node.displacementY = U[idx * 2 + 1];
   }
 
   // Compute max values
   let maxDisplacement = 0;
-  for (const node of nodes) {
-    const d = Math.sqrt(node.displacementX ** 2 + node.displacementY ** 2);
+  for (let i = 0; i < N; i++) {
+    const d = Math.sqrt(U[i * 2] ** 2 + U[i * 2 + 1] ** 2);
     if (d > maxDisplacement) maxDisplacement = d;
   }
   const maxStress = Math.max(...stresses.map(Math.abs));
@@ -144,6 +133,7 @@ export function solve(model: FEAModel): FEAResult {
     displacements: U,
     stresses,
     strains,
+    forces,
     maxDisplacement,
     maxStress,
     reactionForces,
@@ -218,8 +208,6 @@ export function buildTrussBeam(
         x: ix * dx,
         y: iy * dy,
         fixed: ix === 0,
-        displacementX: 0,
-        displacementY: 0,
       });
       nodeGrid[iy][ix] = id;
     }
@@ -234,7 +222,6 @@ export function buildTrussBeam(
           nodeIds: [nodeGrid[iy][ix], nodeGrid[iy][ix + 1]],
           area: A,
           youngsModulus: E,
-          stress: 0, strain: 0, force: 0,
         });
       }
       // Vertical
@@ -244,7 +231,6 @@ export function buildTrussBeam(
           nodeIds: [nodeGrid[iy][ix], nodeGrid[iy + 1][ix]],
           area: A,
           youngsModulus: E,
-          stress: 0, strain: 0, force: 0,
         });
       }
       // Diagonal (Warren pattern)
@@ -255,7 +241,6 @@ export function buildTrussBeam(
             nodeIds: [nodeGrid[iy][ix], nodeGrid[iy + 1][ix + 1]],
             area: A * 0.7,
             youngsModulus: E,
-            stress: 0, strain: 0, force: 0,
           });
         } else {
           elements.push({
@@ -263,7 +248,6 @@ export function buildTrussBeam(
             nodeIds: [nodeGrid[iy][ix + 1], nodeGrid[iy + 1][ix]],
             area: A * 0.7,
             youngsModulus: E,
-            stress: 0, strain: 0, force: 0,
           });
         }
       }
