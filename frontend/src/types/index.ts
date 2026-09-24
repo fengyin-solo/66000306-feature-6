@@ -12,9 +12,22 @@ export interface Element {
   nodeIds: [number, number];  // 2-node truss element
   area: number;               // cross-section area (m²)
   youngsModulus: number;      // Pa
+  allowableStress: number;    // allowable stress (Pa)
   stress: number;             // computed
   strain: number;             // computed
   force: number;              // computed
+}
+
+/** Editable property panel draft (values kept in display units as raw strings). */
+export interface ElementDraft {
+  areaMm2: string;          // cross-section area in mm²
+  youngsGpa: string;        // Young's modulus in GPa
+  allowableMpa: string;     // allowable stress in MPa
+  errors: {
+    area?: string;
+    youngs?: string;
+    allowable?: string;
+  };
 }
 
 export interface Load {

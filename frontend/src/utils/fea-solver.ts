@@ -1,5 +1,8 @@
 import type { FEAModel, FEAResult, Node, Element, Load } from '../types';
 
+/** Default allowable stress used when presets are generated (Pa, 160 MPa structural steel). */
+export const DEFAULT_ALLOWABLE_STRESS = 160e6;
+
 // ─── FEA Solver ─────────────────────────────────────────────────────────────
 export function solve(model: FEAModel): FEAResult {
   const { nodes, elements, loads } = model;
@@ -234,6 +237,7 @@ export function buildTrussBeam(
           nodeIds: [nodeGrid[iy][ix], nodeGrid[iy][ix + 1]],
           area: A,
           youngsModulus: E,
+          allowableStress: DEFAULT_ALLOWABLE_STRESS,
           stress: 0, strain: 0, force: 0,
         });
       }
@@ -244,6 +248,7 @@ export function buildTrussBeam(
           nodeIds: [nodeGrid[iy][ix], nodeGrid[iy + 1][ix]],
           area: A,
           youngsModulus: E,
+          allowableStress: DEFAULT_ALLOWABLE_STRESS,
           stress: 0, strain: 0, force: 0,
         });
       }
@@ -255,6 +260,7 @@ export function buildTrussBeam(
             nodeIds: [nodeGrid[iy][ix], nodeGrid[iy + 1][ix + 1]],
             area: A * 0.7,
             youngsModulus: E,
+            allowableStress: DEFAULT_ALLOWABLE_STRESS,
             stress: 0, strain: 0, force: 0,
           });
         } else {
@@ -263,6 +269,7 @@ export function buildTrussBeam(
             nodeIds: [nodeGrid[iy][ix + 1], nodeGrid[iy + 1][ix]],
             area: A * 0.7,
             youngsModulus: E,
+            allowableStress: DEFAULT_ALLOWABLE_STRESS,
             stress: 0, strain: 0, force: 0,
           });
         }

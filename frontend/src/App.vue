@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { computed, onMounted } from 'vue';
 import FEACanvas from './components/FEACanvas.vue';
 import ElementInfo from './components/ElementInfo.vue';
 import MeshControls from './components/MeshControls.vue';
@@ -10,6 +10,8 @@ const store = useFEAStore();
 onMounted(() => {
   store.loadPreset('cantilever');
 });
+
+const pendingElId = computed(() => store.selectedElement);
 </script>
 
 <template>
@@ -63,5 +65,40 @@ onMounted(() => {
         热力图: {{ store.heatmapMode }}
       </span>
     </footer>
+
+    <!-- Unconfirmed draft confirmation when switching elements -->
+    <div
+      v-if="store.pendingSelection !== null"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+      @click.self="store.cancelPendingSelection()"
+    >
+      <div class="bg-slate-800 rounded-lg border border-slate-700 p-5 w-[340px] shadow-xl">
+        <h3 class="text-sm font-bold text-slate-100 mb-2">属性改动尚未应用</h3>
+        <p class="text-xs text-slate-400 mb-4">
+          单元 #{{ pendingElId }} 有未确认的截面积 / 弹性模量 / 许用应力改动。
+          切换到另一根单元前要如何处理？
+        </p>
+        <div class="flex flex-col gap-2">
+          <button
+            @click="store.confirmPendingSelection()"
+            class="w-full py-2 rounded text-xs font-bold bg-green-700 text-white hover:bg-green-600 transition"
+          >
+            应用并重算，然后切换
+          </button>
+          <button
+            @click="store.discardPendingSelection()"
+            class="w-full py-2 rounded text-xs font-medium bg-slate-700 text-slate-300 hover:bg-slate-600 transition"
+          >
+            放弃改动并切换
+          </button>
+          <button
+            @click="store.cancelPendingSelection()"
+            class="w-full py-2 rounded text-xs font-medium bg-slate-900 text-slate-400 hover:bg-slate-800 transition"
+          >
+            取消，继续编辑当前单元
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>

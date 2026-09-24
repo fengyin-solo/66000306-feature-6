@@ -326,7 +326,7 @@ function handleClick(e: MouseEvent) {
     }
   }
 
-  store.selectElement(bestId);
+  store.requestSelect(bestId);
   draw();
 }
 
